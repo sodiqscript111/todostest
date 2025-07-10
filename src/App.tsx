@@ -1,7 +1,7 @@
 import { GridBackgroundDemo } from "./components/GridBackgroundDemo";
-import OffersCarousel from "@/components/offer";
-import Popup from "@/components/Popup";
-import CustomCursor from "@/components/CustomCursor";
+import OffersCarousel from "./components/offer";
+import Popup from "./components/Popup";
+import CustomCursor from "./components/CustomCursor";
 import { ParallaxScroll } from "./components/parallax-scroll";
 import GlobeWrapper from "./components/globe";
 export default function App() {

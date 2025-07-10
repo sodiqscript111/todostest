@@ -1,14 +1,16 @@
-import React, { useEffect, useRef, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
+// Defines the props for the Carousel component
 interface CarouselProps {
-  items: JSX.Element[];
+  items: React.ReactNode[];
   initialScroll?: number;
 }
 
+// Defines the type for a single card object
 type Card = {
   src: string;
   title: string;
@@ -16,6 +18,7 @@ type Card = {
   content: React.ReactNode;
 };
 
+// Creates a React context to share the close handler and current index
 export const CarouselContext = createContext<{
   onCardClose: (index: number) => void;
   currentIndex: number;
@@ -57,21 +60,22 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
     }
   };
 
+  const isMobile = () => {
+    // Make sure window is defined to avoid SSR errors
+    return typeof window !== "undefined" && window.innerWidth < 768;
+  };
+
   const handleCardClose = (index: number) => {
     if (carouselRef.current) {
       const cardWidth = isMobile() ? 230 : 384;
       const gap = isMobile() ? 4 : 8;
-      const scrollPosition = (cardWidth + gap) * (index + 1);
+      const scrollPosition = (cardWidth + gap) * (index);
       carouselRef.current.scrollTo({
         left: scrollPosition,
         behavior: "smooth",
       });
       setCurrentIndex(index);
     }
-  };
-
-  const isMobile = () => {
-    return window && window.innerWidth < 768;
   };
 
   return (
@@ -128,7 +132,7 @@ export const Card = ({
   layout?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const { onCardClose, currentIndex } = useContext(CarouselContext);
+  const { onCardClose } = useContext(CarouselContext);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -224,6 +228,36 @@ export const Card = ({
   );
 };
 
+// New component for the content section of the card
+interface ServiceCardContentProps {
+  description: string;
+  link: string;
+  handleClose: () => void;
+}
+
+const ServiceCardContent = ({ description, link, handleClose }: ServiceCardContentProps) => (
+  <div>
+    <p className="text-base text-white">{description}</p>
+    <div className="flex justify-center items-center gap-4 mt-4">
+      <Link
+        to={link}
+        className="inline-block px-6 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-gray-200 transition"
+        aria-label="Learn more"
+      >
+        Learn More
+      </Link>
+      <button
+        // This is the fix: onClick now correctly calls the handleClose prop
+        onClick={handleClose}
+        className="bg-black text-white text-sm font-medium py-2 px-4 border border-white/20 hover:bg-gray-800 transition"
+        aria-label="Close modal"
+      >
+        No Thanks
+      </button>
+    </div>
+  </div>
+);
+
 const services = [
   {
     image: "https://i.ibb.co/n8swZkrg/socialmedia.jpg",
@@ -286,27 +320,8 @@ export default function OffersCarousel() {
                 src: svc.image,
                 title: svc.title,
                 category: "Service",
-                content: (
-                  <div>
-                    <p className="text-base text-white">{svc.description}</p>
-                    <div className="flex justify-center items-center gap-4 mt-4">
-                      <Link
-                        to={svc.link}
-                        className="inline-block px-6 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-gray-200 transition"
-                        aria-label={`Learn more about ${svc.title}`}
-                      >
-                        Learn More
-                      </Link>
-                      <button
-                        onClick={props => props.handleClose()}
-                        className="bg-black text-white text-sm font-medium py-2 px-4 border border-white/20 hover:bg-gray-800 transition"
-                        aria-label={`Close ${svc.title} modal`}
-                      >
-                        No Thanks
-                      </button>
-                    </div>
-                  </div>
-                ),
+                // Pass the new component with its props
+                content: <ServiceCardContent description={svc.description} link={svc.link} />,
               }}
               index={index}
             />
