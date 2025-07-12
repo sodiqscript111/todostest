@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, createContext, useContext } from "react";
+import  { useEffect, useState, createContext, useContext } from "react";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
 import { cn } from "../lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
