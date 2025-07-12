@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { cn } from "../lib/utils";
 
 // It's good practice to have your image array outside the component

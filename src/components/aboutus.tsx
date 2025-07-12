@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { cn } from "../lib/utils";
-import React, { useMemo } from "react";
+import  { useMemo } from "react";
 
 const AboutUs = () => {
   // Floating solid shapes
