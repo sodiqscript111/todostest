@@ -1,5 +1,5 @@
 "use client";
-import  { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../lib/utils";
 
@@ -30,7 +30,13 @@ export const FlipWords = ({
   }, [isAnimating, duration, startAnimation]);
 
   return (
-    <div className={cn("z-10 flex items-center text-left", className)} aria-live="polite">
+    <div
+      className={cn(
+        "z-10 flex flex-col md:flex-row items-start md:items-center text-left",
+        className
+      )}
+      aria-live="polite"
+    >
       <span className="text-2xl md:text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
         What service would you need today
       </span>
@@ -50,7 +56,7 @@ export const FlipWords = ({
             scale: 1.5,
             position: "absolute",
           }}
-          className="inline-block text-2xl md:text-3xl font-semibold text-neutral-900 dark:text-neutral-100 px-2"
+          className="inline-block text-2xl md:text-3xl font-semibold text-neutral-900 dark:text-neutral-100 px-0 md:px-2 mt-2 md:mt-0"
           key={currentWord}
         >
           &quot;{currentWord}&quot;?

@@ -6,8 +6,8 @@ import { Canvas, extend, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import ThreeGlobe from "three-globe";
 import countries from "../assets/data/globe.json";
+import { motion } from "framer-motion";
 
-// Register ThreeGlobe as a JSX element
 extend({ ThreeGlobe });
 
 declare module "@react-three/fiber" {
@@ -58,6 +58,13 @@ interface WorldProps {
   data: Position[];
 }
 
+function randomSampleIndices(max: number, count: number) {
+  const set = new Set<number>();
+  while (set.size < count) set.add(Math.floor(Math.random() * max));
+  return Array.from(set);
+}
+
+/** Globe component (three-globe wrapper) **/
 export function Globe({ globeConfig, data }: WorldProps) {
   const globeRef = useRef<ThreeGlobe | null>(null);
   const groupRef = useRef<THREE.Group | null>(null);
@@ -119,7 +126,6 @@ export function Globe({ globeConfig, data }: WorldProps) {
       .atmosphereAltitude(cfg.atmosphereAltitude)
       .hexPolygonColor(() => cfg.polygonColor);
 
-    // 🛠️ Fixed here using property names instead of type-safe functions
     globeRef.current
       .arcsData(data)
       .arcStartLat("startLat")
@@ -179,6 +185,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
   return <group ref={groupRef} />;
 }
 
+/** Tweaks for Renderer */
 function RendererTweaks() {
   const { gl, size } = useThree();
   useEffect(() => {
@@ -189,6 +196,7 @@ function RendererTweaks() {
   return null;
 }
 
+/** World component rendering the globe */
 export function World({ globeConfig, data }: WorldProps) {
   return (
     <Canvas camera={{ fov: 50, position: [0, 0, cameraZ] }}>
@@ -214,6 +222,47 @@ export function World({ globeConfig, data }: WorldProps) {
   );
 }
 
+/** White Stars overlay component */
+export function WhiteStars({ count = 80 }: { count?: number }) {
+  const stars = useMemo(
+    () =>
+      Array.from({ length: count }).map(() => ({
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        delay: Math.random() * 5,
+        duration: 2 + Math.random() * 3,
+      })),
+    [count]
+  );
+
+  return (
+    <>
+      {stars.map((star, idx) => (
+        <motion.span
+          key={idx}
+          className="absolute block rounded-full bg-white"
+          style={{
+            top: `${star.top}%`,
+            left: `${star.left}%`,
+            width: "1px",
+            height: "1px",
+            opacity: 0.8,
+            pointerEvents: "none",
+          }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{
+            repeat: Infinity,
+            duration: star.duration,
+            delay: star.delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+/** Main component wrapping the globe and stars */
 export default function GlobeWrapper() {
   const data: Position[] = [
     {
@@ -250,8 +299,8 @@ export default function GlobeWrapper() {
   };
 
   return (
-    <section className="bg-black w-full py-16">
-      <div className="text-center pt-12 pb-8">
+    <section className="bg-black w-full py-16 relative overflow-hidden">
+      <div className="text-center pt-12 pb-8 z-20 relative">
         <h2 className="text-5xl font-extrabold text-white tracking-tight">
           From Lagos to the World
         </h2>
@@ -259,15 +308,13 @@ export default function GlobeWrapper() {
           Discover our bold design legacy in every pixel.
         </p>
       </div>
-      <div className="h-[40rem] w-full max-w-6xl mx-auto">
+      <div className="h-[40rem] w-full max-w-6xl mx-auto relative z-10">
         <World globeConfig={globeConfig} data={data} />
+        {/* White stars overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          <WhiteStars count={80} />
+        </div>
       </div>
     </section>
   );
-}
-
-function randomSampleIndices(max: number, count: number) {
-  const set = new Set<number>();
-  while (set.size < count) set.add(Math.floor(Math.random() * max));
-  return Array.from(set);
 }

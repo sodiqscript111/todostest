@@ -1,5 +1,3 @@
-// src/components/OffersCarousel.tsx
-
 "use client";
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { IconArrowNarrowLeft, IconArrowNarrowRight } from "@tabler/icons-react";
@@ -15,7 +13,6 @@ interface CarouselProps {
 type Card = {
   src: string;
   title: string;
-  category: string;
   content: (props: { handleClose: () => void }) => React.ReactNode;
 };
 
@@ -80,7 +77,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
           ref={carouselRef}
           onScroll={checkScrollability}
         >
-          <div className={cn("flex flex-row justify-start gap-4 pl-4", "mx-auto max-w-7xl")}> 
+          <div className={cn("flex flex-row justify-start gap-4 pl-4", "mx-auto max-w-7xl")}>
             {items.map((item, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -118,7 +115,15 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   );
 };
 
-export const Card = ({ card, index, layout = false }: { card: Card; index: number; layout?: boolean }) => {
+export const Card = ({
+  card,
+  index,
+  layout = false,
+}: {
+  card: Card;
+  index: number;
+  layout?: boolean;
+}) => {
   const [open, setOpen] = useState(false);
   const { onCardClose } = useContext(CarouselContext);
 
@@ -156,19 +161,25 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
               className="fixed inset-0 h-full w-full bg-black/80 backdrop-blur-lg"
             />
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
               layoutId={layout ? `card-${card.title}` : undefined}
-              className="relative z-[60] mx-auto my-10 h-fit max-w-5xl rounded-3xl bg-black p-4 font-sans md:p-10"
+              className="relative z-[60] mx-auto my-10 max-w-5xl rounded-3xl bg-black p-6 font-sans md:p-10 shadow-lg"
             >
-              <motion.p layoutId={layout ? `category-${card.title}` : undefined} className="text-base font-medium text-white">
-                {card.category}
+              <motion.p
+                layoutId={layout ? `category-${card.title}` : undefined}
+                className="text-base font-medium text-white"
+              >
+          
               </motion.p>
-              <motion.p layoutId={layout ? `title-${card.title}` : undefined} className="mt-4 text-2xl font-semibold text-white md:text-5xl">
+              <motion.p
+                layoutId={layout ? `title-${card.title}` : undefined}
+                className="mt-4 text-3xl font-semibold text-white md:text-5xl"
+              >
                 {card.title}
               </motion.p>
-              <div className="py-10">{card.content({ handleClose })}</div>
+              <div className="py-6">{card.content({ handleClose })}</div>
             </motion.div>
           </div>
         )}
@@ -176,18 +187,29 @@ export const Card = ({ card, index, layout = false }: { card: Card; index: numbe
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
         onClick={handleOpen}
-        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-black md:h-[40rem] md:w-96"
+        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-black md:h-[40rem] md:w-96 cursor-pointer"
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-full bg-gradient-to-b from-black/50 via-transparent to-transparent" />
         <div className="relative z-40 p-8">
-          <motion.p layoutId={layout ? `category-${card.category}` : undefined} className="text-left font-sans text-sm font-medium text-white md:text-base">
-            {card.category}
+          <motion.p
+           
+            className="text-left font-sans text-sm font-medium text-white md:text-base"
+          >
+          
           </motion.p>
-          <motion.p layoutId={layout ? `title-${card.title}` : undefined} className="mt-2 max-w-xs text-left font-sans text-xl font-semibold [text-wrap:balance] text-white md:text-3xl">
+          <motion.p
+            layoutId={layout ? `title-${card.title}` : undefined}
+            className="mt-2 max-w-xs text-left font-sans text-xl font-semibold [text-wrap:balance] text-white md:text-3xl"
+          >
             {card.title}
           </motion.p>
         </div>
-        <img src={card.src} alt={card.title} className="absolute inset-0 z-10 h-full w-full object-cover" />
+        <img
+          src={card.src}
+          alt={card.title}
+          className="absolute inset-0 z-10 h-full w-full object-cover"
+          draggable={false}
+        />
       </motion.button>
     </>
   );
@@ -197,16 +219,39 @@ interface ServiceCardContentProps {
   description: string;
   link: string;
   handleClose: () => void;
+  subPoints?: string[];
 }
 
-const ServiceCardContent = ({ description, link, handleClose }: ServiceCardContentProps) => (
+const ServiceCardContent = ({
+  description,
+  link,
+  handleClose,
+  subPoints = [],
+}: ServiceCardContentProps) => (
   <div>
     <p className="text-base text-white">{description}</p>
-    <div className="flex justify-center items-center gap-4 mt-4">
-      <Link to={link} className="inline-block px-6 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-gray-200 transition">
+
+    {subPoints.length > 0 && (
+      <ul className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white list-disc list-inside">
+        {subPoints.map((point, idx) => (
+          <li key={idx} className="text-white/80">
+            {point}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <div className="flex justify-center items-center gap-4 mt-6">
+      <Link
+        to={link}
+        className="inline-block px-6 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-gray-200 transition"
+      >
         Learn More
       </Link>
-      <button onClick={handleClose} className="bg-black text-white text-sm font-medium py-2 px-4 border border-white/20 hover:bg-gray-800 transition">
+      <button
+        onClick={handleClose}
+        className="bg-black text-white text-sm font-medium py-2 px-4 border border-white/20 hover:bg-gray-800 transition"
+      >
         No Thanks
       </button>
     </div>
@@ -217,38 +262,69 @@ const services = [
   {
     image: "https://i.ibb.co/n8swZkrg/socialmedia.jpg",
     title: "Social Media Design",
-    description: "Engaging branded graphics for Facebook, Instagram, LinkedIn, Twitter, and more.",
+    description:
+      "Engaging branded graphics for Facebook, Instagram, LinkedIn, Twitter, and more.",
     link: "/social-media-design",
+    subPoints: [
+      "Custom templates tailored for each platform",
+      "Consistent brand messaging",
+      "Analytics-driven content optimization",
+    ],
   },
   {
     image: "https://i.ibb.co/Ng0X5rjw/graphis.jpg",
     title: "Graphic Design",
     description: "Stunning visuals for digital and print: logos, banners, ads, and more.",
     link: "/graphic-design",
+    subPoints: [
+      "Logo & identity design",
+      "Print & digital assets",
+      "Brand collateral development",
+    ],
   },
   {
     image: "https://i.ibb.co/kgCs62Yn/printing.png",
     title: "Printing",
     description: "Flyers, posters, banners, business cards—high-quality offline branding.",
     link: "/printing",
+    subPoints: [
+      "Offset and digital printing",
+      "High-quality materials",
+      "Fast turnaround times",
+    ],
   },
   {
     image: "https://i.ibb.co/ymQdvrbd/branding.jpg",
     title: "Branding",
     description: "Complete identity systems to build and maintain a strong brand voice.",
     link: "/branding",
+    subPoints: [
+      "Logo and style guide development",
+      "Voice and messaging strategy",
+      "Brand consistency audits",
+    ],
   },
   {
     image: "https://i.ibb.co/B2Y0Bd8S/webdevlopment.jpg",
     title: "Website Design",
     description: "Responsive, modern web design tailored to your audience and goals.",
     link: "/website-design",
+    subPoints: [
+      "Mobile-first approach",
+      "SEO best practices",
+      "User experience optimization",
+    ],
   },
   {
     image: "https://i.ibb.co/gMbYrRdM/video.png",
     title: "Video Editing",
     description: "Creative video cuts and motion graphics for ads, promos, and social content.",
     link: "/video-editing",
+    subPoints: [
+      "Motion graphics integration",
+      "Color grading",
+      "Audio enhancement",
+    ],
   },
 ];
 
@@ -269,9 +345,13 @@ export default function OffersCarousel() {
               card={{
                 src: svc.image,
                 title: svc.title,
-                category: "Service",
                 content: ({ handleClose }) => (
-                  <ServiceCardContent description={svc.description} link={svc.link} handleClose={handleClose} />
+                  <ServiceCardContent
+                    description={svc.description}
+                    link={svc.link}
+                    handleClose={handleClose}
+                    subPoints={svc.subPoints}
+                  />
                 ),
               }}
               index={index}
